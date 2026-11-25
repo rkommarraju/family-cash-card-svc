@@ -4,9 +4,13 @@ package com.staircase.cashcard.controller;
 import com.staircase.cashcard.entity.CashCard;
 import com.staircase.cashcard.repository.CashCardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+
 
 import java.net.URI;
 import java.util.List;
@@ -36,5 +40,11 @@ public class CashCardController {
             return  ResponseEntity.ok(cashCardOptional.get());
         }
         return ResponseEntity.notFound().build();
+    }
+
+    @GetMapping
+    ResponseEntity<List<CashCard>> getAllCashCards(Pageable pageable){
+        Page<CashCard> page=cashCardRepository.findAll(PageRequest.of(pageable.getPageNumber(),pageable.getPageSize()));
+        return ResponseEntity.ok(page.getContent());
     }
 }
