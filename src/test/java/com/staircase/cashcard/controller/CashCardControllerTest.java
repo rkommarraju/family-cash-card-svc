@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.web.servlet.client.EntityExchangeResult;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import java.net.URI;
 import java.util.Objects;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -31,5 +32,20 @@ public class CashCardControllerTest {
         assertThat(response.getStatus()).isEqualTo(HttpStatus.OK);
         CashCard cashCard= response.getResponseBody();
         assertThat(Objects.requireNonNull(cashCard).id()).isNotNull();
+    }
+    @Test
+    void createCashCard(){
+        CashCard cashCard=new CashCard(null,2424.24);
+        EntityExchangeResult<CashCard> response=restTestClient.post().uri("/cashcards").body(cashCard).exchange().returnResult(CashCard.class);
+        assertThat(response.getStatus()).isEqualTo(HttpStatus.CREATED);
+
+        URI locationOfNewCashCard=response.getResponseHeaders().getLocation();
+        EntityExchangeResult<CashCard> createdResponse= null;
+        if (locationOfNewCashCard != null) {
+            createdResponse = restTestClient.get().uri(locationOfNewCashCard.getPath()) .exchange()
+                    .returnResult(CashCard.class);
+        }
+        assertThat(createdResponse.getStatus()).isEqualTo(HttpStatus.OK);
+
     }
 }
